@@ -7,14 +7,20 @@ namespace CCPP.Data.Repository
 {
     public class PaymentTranstactionsRepository : IPaymentTranstactionsRepository
     {
+        private readonly CcppDbContext _dbContext;
+
+        public PaymentTranstactionsRepository(CcppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
         public async Task AddAsync(IEnumerable<PaymentTranstaction> paymentTransactions)
         {
-            await Task.CompletedTask;
+            await _dbContext.AddRangeAsync(paymentTransactions);
         }
 
         public async Task SaveChangesAsync()
         {
-            await Task.CompletedTask;
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -13,14 +13,12 @@ namespace CCPP.Core.FileParsers.Csv
 
         public override IEnumerable<PaymentTranstaction> ParseContent(Stream content)
         {
-            using (var reader = new StreamReader(content))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-            {
-                csv.Configuration.HasHeaderRecord = false;
-                csv.Configuration.RegisterClassMap<PaymentTransactionCsvMap>();
-                var records = csv.GetRecords<PaymentTranstaction>();
-                return records.ToList();
-            }
+            using var reader = new StreamReader(content);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            csv.Configuration.HasHeaderRecord = false;
+            csv.Configuration.RegisterClassMap<PaymentTransactionCsvMap>();
+            var records = csv.GetRecords<PaymentTranstaction>();
+            return records.ToList();
         }
     }
 }
