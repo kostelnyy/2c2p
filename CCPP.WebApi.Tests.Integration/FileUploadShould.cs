@@ -1,6 +1,14 @@
+using CCPP.Core.Domain;
+using CCPP.Core.Repository;
 using CCPP.WebApi.Tests.Integration.TestsInfrastructure;
 using FluentAssertions;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -11,8 +19,8 @@ namespace CCPP.WebApi.Tests.Integration
 {
     public class FileUploadShould : IClassFixture<CustomWebApplicationFactory<Startup>>
     {
-        private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Startup> _factory;
+        private readonly HttpClient _client;
 
         public FileUploadShould(CustomWebApplicationFactory<Startup> factory)
         {
@@ -20,18 +28,39 @@ namespace CCPP.WebApi.Tests.Integration
             _client = factory.CreateClient();
         }
 
-        //TODO: test is not ready!!
         [Fact]
         public async Task SuccesfullyWriteValidCsvInput()
         {
-            var content = 
+            var repoMock = Substitute.For<IPaymentTranstactionsRepository>();
+
+            var client = _factory.WithWebHostBuilder(b => {
+                b.ConfigureTestServices(services =>
+                {
+                    services.AddSingleton(repoMock);
+                });
+            }).CreateClient();
+
+            var content =
 @"""Invoice0000001"",""1,000.00"",""USD"",""20/02/2019 12:33:16"",""Approved""
 ""Invoice0000002"",""300.00"",""USD"",""21/02/2019 02:04:59"",""Failed""
+""Invoice0000003"",""40.00"",""EUR"",""01/02/2020 02:04:59"",""Finished""
 ";
+
             var fileContent = CreateFileContent(content, "test.csv");
-            var response = await _client.PostAsync("/uploads", fileContent);
+            var response = await client.PostAsync("/uploads", fileContent);
 
             response.IsSuccessStatusCode.Should().BeTrue();
+            await repoMock.Received().SaveChangesAsync();
+            await repoMock
+                .Received()
+                .AddAsync(Arg.Is<IEnumerable<PaymentTranstaction>>(list => 
+                    list.First().Id == "Invoice0000001" &&
+                    list.First().Amount == 1000 &&
+                    list.First().Currency == "USD" &&
+                    list.First().TransactionDate == new DateTime(2019, 2, 20, 12, 33, 16) &&
+                    list.First().Status == PaymentTranstactionStatus.Approved &&
+                    list.Last().Status == PaymentTranstactionStatus.Done
+                ));
         }
 
         [Theory]
