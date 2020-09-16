@@ -24,7 +24,11 @@ namespace CCPP.WebApi.Tests.Integration
         [Fact]
         public async Task SuccesfullyWriteValidCsvInput()
         {
-            var fileContent = CreateFileContent("This is a dummy file", "test.csv");
+            var content = 
+@"""Invoice0000001"",""1,000.00"",""USD"",""20/02/2019 12:33:16"",""Approved""
+""Invoice0000002"",""300.00"",""USD"",""21/02/2019 02:04:59"",""Failed""
+";
+            var fileContent = CreateFileContent(content, "test.csv");
             var response = await _client.PostAsync("/uploads", fileContent);
 
             response.IsSuccessStatusCode.Should().BeTrue();

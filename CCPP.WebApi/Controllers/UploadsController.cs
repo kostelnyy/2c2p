@@ -3,7 +3,6 @@ using CCPP.Core.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,10 +31,8 @@ namespace CCPP.WebApi.Controllers
                 var validExtenstions = _fileParsers.Select(p => p.Extension);
                 return BadRequest($"File format not supported. Valid formats: {string.Join(", ", validExtenstions)}");
             }
-            using var reader = new StreamReader(upload.OpenReadStream());
-            var res = await reader.ReadToEndAsync();
 
-            var result = parserToUse.ParseContent(res);
+            var result = parserToUse.ParseContent(upload.OpenReadStream());
 
             await _repository.AddAsync(result);
             await _repository.SaveChangesAsync();

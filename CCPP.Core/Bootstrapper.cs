@@ -1,4 +1,6 @@
 ﻿using CCPP.Core.FileParsers;
+using CCPP.Core.FileParsers.Csv;
+using CCPP.Core.FileParsers.Xml;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CCPP.Core
