@@ -19,27 +19,23 @@ namespace CCPP.WebApi.Tests.Integration
 {
     public class FileUploadShould : IClassFixture<CustomWebApplicationFactory<Startup>>
     {
-        private readonly CustomWebApplicationFactory<Startup> _factory;
+        private readonly IPaymentTranstactionsRepository _repoMock;
         private readonly HttpClient _client;
 
         public FileUploadShould(CustomWebApplicationFactory<Startup> factory)
         {
-            _factory = factory;
-            _client = factory.CreateClient();
+            _repoMock = Substitute.For<IPaymentTranstactionsRepository>();
+            _client = factory.WithWebHostBuilder(b => {
+                b.ConfigureTestServices(services =>
+                {
+                    services.AddSingleton(_repoMock);
+                });
+            }).CreateClient();
         }
 
         [Fact]
         public async Task SuccesfullyWriteValidCsvInput()
         {
-            var repoMock = Substitute.For<IPaymentTranstactionsRepository>();
-
-            var client = _factory.WithWebHostBuilder(b => {
-                b.ConfigureTestServices(services =>
-                {
-                    services.AddSingleton(repoMock);
-                });
-            }).CreateClient();
-
             var content =
 @"""Invoice0000001"",""1,000.00"",""USD"",""20/02/2019 12:33:16"",""Approved""
 ""Invoice0000002"",""300.00"",""USD"",""21/02/2019 02:04:59"",""Failed""
@@ -47,11 +43,11 @@ namespace CCPP.WebApi.Tests.Integration
 ";
 
             var fileContent = CreateFileContent(content, "test.csv");
-            var response = await client.PostAsync("/uploads", fileContent);
+            var response = await _client.PostAsync("/uploads", fileContent);
 
             response.IsSuccessStatusCode.Should().BeTrue();
-            await repoMock.Received().SaveChangesAsync();
-            await repoMock
+            await _repoMock.Received().SaveChangesAsync();
+            await _repoMock
                 .Received()
                 .AddAsync(Arg.Is<IEnumerable<PaymentTranstaction>>(list => 
                     list.First().Id == "Invoice0000001" &&
@@ -60,6 +56,51 @@ namespace CCPP.WebApi.Tests.Integration
                     list.First().TransactionDate == new DateTime(2019, 2, 20, 12, 33, 16) &&
                     list.First().Status == PaymentTranstactionStatus.Approved &&
                     list.Last().Status == PaymentTranstactionStatus.Done
+                ));
+        }
+
+        [Fact]
+        public async Task SuccesfullyWriteValidXmlInput()
+        {
+            var content =
+@"
+<Transactions>
+	<Transaction id=""Inv00001"">
+		<TransactionDate>2019-01-23T13:45:10</TransactionDate>
+		<PaymentDetails>
+			<Amount>200.00</Amount>
+			<CurrencyCode>USD</CurrencyCode>
+		</PaymentDetails>
+		<Status>Done</Status>
+	</Transaction>
+	<Transaction id=""Inv00002"">
+		<TransactionDate>2019-01-24T16:09:15</TransactionDate>
+		<PaymentDetails>
+			<Amount>10000.00</Amount>
+			<CurrencyCode>EUR</CurrencyCode>
+		</PaymentDetails>
+		<Status>Rejected</Status>
+	</Transaction>
+</Transactions>	 
+";
+            var fileContent = CreateFileContent(content, "test.xml");
+            var response = await _client.PostAsync("/uploads", fileContent);
+
+            response.IsSuccessStatusCode.Should().BeTrue();
+            await _repoMock.Received().SaveChangesAsync();
+            await _repoMock
+                .Received()
+                .AddAsync(Arg.Is<IEnumerable<PaymentTranstaction>>(list =>
+                    list.First().Id == "Inv00001" &&
+                    list.First().Amount == 200 &&
+                    list.First().Currency == "USD" &&
+                    list.First().TransactionDate == new DateTime(2019, 1, 23, 13, 45, 10) &&
+                    list.First().Status == PaymentTranstactionStatus.Done &&
+                    list.Last().Id == "Inv00002" &&
+                    list.Last().Amount == 10000 &&
+                    list.Last().Currency == "EUR" &&
+                    list.Last().TransactionDate == new DateTime(2019, 1, 24, 16, 09, 15) &&
+                    list.Last().Status == PaymentTranstactionStatus.Rejected
                 ));
         }
 
