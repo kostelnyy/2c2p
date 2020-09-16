@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using CCPP.Core.Domain;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CCPP.Core.FileParsers
 {
@@ -10,5 +13,7 @@ namespace CCPP.Core.FileParsers
             var fileExtenstion = fileName.Split('.').Last();
             return Extension.Equals(fileExtenstion);
         }
+
+        public abstract IEnumerable<PaymentTranstaction> ParseContent(string content);
     }
 }

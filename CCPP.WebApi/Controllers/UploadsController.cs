@@ -1,4 +1,5 @@
 ﻿using CCPP.Core.FileParsers;
+using CCPP.Core.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -13,10 +14,13 @@ namespace CCPP.WebApi.Controllers
     public class UploadsController : ControllerBase
     {
         private readonly IEnumerable<FileParser> _fileParsers;
+        private readonly IPaymentTranstactionsRepository _repository;
 
-        public UploadsController(IEnumerable<FileParser> fileParsers)
+        public UploadsController(IEnumerable<FileParser> fileParsers,
+            IPaymentTranstactionsRepository repository)
         {
             _fileParsers = fileParsers;
+            _repository = repository;
         }
 
         [HttpPost]
@@ -30,6 +34,12 @@ namespace CCPP.WebApi.Controllers
             }
             using var reader = new StreamReader(upload.OpenReadStream());
             var res = await reader.ReadToEndAsync();
+
+            var result = parserToUse.ParseContent(res);
+
+            await _repository.AddAsync(result);
+            await _repository.SaveChangesAsync();
+
             return Ok();
         }
     }

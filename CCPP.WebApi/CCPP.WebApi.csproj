@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CCPP.Core\CCPP.Core.csproj" />
+    <ProjectReference Include="..\CCPP.Data\CCPP.Data.csproj" />
   </ItemGroup>
 
 
