@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 namespace CCPP.WebApi
 {
@@ -25,7 +26,11 @@ namespace CCPP.WebApi
             services.AddControllers();
             services.AddCoreDependencies();
             services.AddDataDependencies(Configuration);
-            services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions(opts =>
+                {
+                    opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Payment Transtactions API", Version = "v1" });
