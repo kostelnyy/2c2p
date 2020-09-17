@@ -11,11 +11,11 @@ namespace CCPP.Core.FileParsers.Xml
     {
         public override string Extension => "xml";
 
-        public override IEnumerable<PaymentTranstaction> ParseContent(Stream content)
+        public override IEnumerable<PaymentTransaction> ParseContent(Stream content)
         {
             var result = XElement.Load(content)
                 .Descendants("Transaction")
-                .Select(t => new PaymentTranstaction
+                .Select(t => new PaymentTransaction
                 {
                     Id = t.Attribute("id").Value,
                     Amount = decimal.Parse(t.Element("PaymentDetails").Element("Amount").Value),
@@ -25,11 +25,11 @@ namespace CCPP.Core.FileParsers.Xml
                 }).ToList();
             return result;
 
-            PaymentTranstactionStatus MapStatus(string input) => input switch
+            PaymentTransactionStatus MapStatus(string input) => input switch
             {
-                "Approved" => PaymentTranstactionStatus.Approved,
-                "Done" => PaymentTranstactionStatus.Done,
-                "Rejected" => PaymentTranstactionStatus.Rejected,
+                "Approved" => PaymentTransactionStatus.A,
+                "Done" => PaymentTransactionStatus.D,
+                "Rejected" => PaymentTransactionStatus.R,
                 _ => throw new ArgumentException($"Can't parse status in XML {input}")
             };
         }

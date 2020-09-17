@@ -6,7 +6,7 @@ namespace CCPP.Core.Repository
 {
     public interface IPaymentTranstactionsRepository
     {
-        Task AddAsync(IEnumerable<PaymentTranstaction> paymentTransactions);
+        Task AddAsync(IEnumerable<PaymentTransaction> paymentTransactions);
         Task SaveChangesAsync();
     }
 }

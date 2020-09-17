@@ -10,13 +10,13 @@ namespace CCPP.Data
         {
         }
 
-        public DbSet<PaymentTranstaction> PaymentTranstactions { get; set; }
+        public DbSet<PaymentTransaction> PaymentTranstactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("transactions");
 
-            modelBuilder.Entity<PaymentTranstaction>(b =>
+            modelBuilder.Entity<PaymentTransaction>(b =>
             {
                 b.HasKey(x => x.Id);
                 b.Property(x => x.Id)
@@ -26,6 +26,8 @@ namespace CCPP.Data
                     .HasMaxLength(3);
                 b.Property(x => x.Status)
                     .HasConversion<string>();
+                b.Property(x => x.Amount)
+                    .HasColumnType("decimal(10, 2)");
                 b.HasIndex(x => x.Currency);
                 b.HasIndex(x => x.TransactionDate);
                 b.HasIndex(x => x.Status);

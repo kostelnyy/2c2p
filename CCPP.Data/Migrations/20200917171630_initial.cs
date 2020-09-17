@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CCPP.Data.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -16,7 +16,7 @@ namespace CCPP.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(maxLength: 50, nullable: false),
-                    Amount = table.Column<decimal>(nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(10, 2)", nullable: false),
                     Currency = table.Column<string>(maxLength: 3, nullable: false),
                     Status = table.Column<string>(nullable: false),
                     TransactionDate = table.Column<DateTime>(nullable: false)

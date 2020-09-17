@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CCPP.Data.Migrations
 {
     [DbContext(typeof(CcppDbContext))]
-    [Migration("20200916204803_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200917171630_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -22,14 +22,14 @@ namespace CCPP.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("CCPP.Core.Domain.PaymentTranstaction", b =>
+            modelBuilder.Entity("CCPP.Core.Domain.PaymentTransaction", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(10, 2)");
 
                     b.Property<string>("Currency")
                         .IsRequired()

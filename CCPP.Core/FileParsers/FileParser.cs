@@ -15,6 +15,6 @@ namespace CCPP.Core.FileParsers
             return Extension.Equals(fileExtenstion);
         }
 
-        public abstract IEnumerable<PaymentTranstaction> ParseContent(Stream content);
+        public abstract IEnumerable<PaymentTransaction> ParseContent(Stream content);
     }
 }

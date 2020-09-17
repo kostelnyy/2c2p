@@ -32,8 +32,8 @@ namespace CCPP.WebApi.Tests.Integration
         [Theory]
         [InlineData("/transactions", null, null, null, null)]
         [InlineData("/transactions?from=2020-03-12&to=2020-03-14&currency=EUR&status=A", 
-            "2020-03-12", "2020-03-14", "EUR", PaymentTransactionStatusDto.A)]
-        public async Task QueryDataProperlyByParams(string url, string from, string to, string currency, PaymentTransactionStatusDto? status)
+            "2020-03-12", "2020-03-14", "EUR", PaymentTransactionStatus.A)]
+        public async Task QueryDataProperlyByParams(string url, string from, string to, string currency, PaymentTransactionStatus? status)
         {
             GetPaymentTransactionsQuery query = default;
             await _queriesMock.GetTransactions(Arg.Do<GetPaymentTransactionsQuery>(q => query = q));

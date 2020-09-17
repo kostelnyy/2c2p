@@ -10,12 +10,12 @@ namespace CCPP.Data.Seed
         {
             if (!context.PaymentTranstactions.Any())
             {
-                context.PaymentTranstactions.Add(new PaymentTranstaction
+                context.PaymentTranstactions.Add(new PaymentTransaction
                 {
                     Id = "PaymentTest001",
                     Amount = 100m,
                     Currency = "EUR",
-                    Status = PaymentTranstactionStatus.Approved,
+                    Status = PaymentTransactionStatus.A,
                     TransactionDate = DateTime.UtcNow
                 });
                 context.SaveChanges();

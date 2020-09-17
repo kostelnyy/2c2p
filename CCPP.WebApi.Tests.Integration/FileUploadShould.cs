@@ -49,13 +49,13 @@ namespace CCPP.WebApi.Tests.Integration
             await _repoMock.Received().SaveChangesAsync();
             await _repoMock
                 .Received()
-                .AddAsync(Arg.Is<IEnumerable<PaymentTranstaction>>(list => 
+                .AddAsync(Arg.Is<IEnumerable<PaymentTransaction>>(list => 
                     list.First().Id == "Invoice0000001" &&
                     list.First().Amount == 1000 &&
                     list.First().Currency == "USD" &&
                     list.First().TransactionDate == new DateTime(2019, 2, 20, 12, 33, 16) &&
-                    list.First().Status == PaymentTranstactionStatus.Approved &&
-                    list.Last().Status == PaymentTranstactionStatus.Done
+                    list.First().Status == PaymentTransactionStatus.A &&
+                    list.Last().Status == PaymentTransactionStatus.D
                 ));
         }
 
@@ -90,17 +90,17 @@ namespace CCPP.WebApi.Tests.Integration
             await _repoMock.Received().SaveChangesAsync();
             await _repoMock
                 .Received()
-                .AddAsync(Arg.Is<IEnumerable<PaymentTranstaction>>(list =>
+                .AddAsync(Arg.Is<IEnumerable<PaymentTransaction>>(list =>
                     list.First().Id == "Inv00001" &&
                     list.First().Amount == 200 &&
                     list.First().Currency == "USD" &&
                     list.First().TransactionDate == new DateTime(2019, 1, 23, 13, 45, 10) &&
-                    list.First().Status == PaymentTranstactionStatus.Done &&
+                    list.First().Status == PaymentTransactionStatus.D &&
                     list.Last().Id == "Inv00002" &&
                     list.Last().Amount == 10000 &&
                     list.Last().Currency == "EUR" &&
                     list.Last().TransactionDate == new DateTime(2019, 1, 24, 16, 09, 15) &&
-                    list.Last().Status == PaymentTranstactionStatus.Rejected
+                    list.Last().Status == PaymentTransactionStatus.R
                 ));
         }
 

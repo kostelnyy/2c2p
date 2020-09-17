@@ -13,7 +13,7 @@ namespace CCPP.Data.Repository
         {
             _dbContext = dbContext;
         }
-        public async Task AddAsync(IEnumerable<PaymentTranstaction> paymentTransactions)
+        public async Task AddAsync(IEnumerable<PaymentTransaction> paymentTransactions)
         {
             await _dbContext.AddRangeAsync(paymentTransactions);
         }

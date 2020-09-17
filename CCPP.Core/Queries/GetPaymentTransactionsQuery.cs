@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CCPP.Core.Domain;
+using System;
 
 namespace CCPP.Core.Queries
 {
@@ -9,6 +8,6 @@ namespace CCPP.Core.Queries
         public string Currency { get; set; }
         public DateTime? From { get; set; }
         public DateTime? To { get; set; }
-        public PaymentTransactionStatusDto? Status { get; set; }
+        public PaymentTransactionStatus? Status { get; set; }
     }
 }

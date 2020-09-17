@@ -7,7 +7,7 @@ using System.Globalization;
 
 namespace CCPP.Core.FileParsers.Csv
 {
-    public class PaymentTransactionCsvMap : ClassMap<PaymentTranstaction>
+    public class PaymentTransactionCsvMap : ClassMap<PaymentTransaction>
     {
         public PaymentTransactionCsvMap()
         {
@@ -26,9 +26,9 @@ namespace CCPP.Core.FileParsers.Csv
         {
             return text switch
             {
-                "Approved" => PaymentTranstactionStatus.Approved,
-                "Failed"   => PaymentTranstactionStatus.Rejected,
-                "Finished" => PaymentTranstactionStatus.Done,
+                "Approved" => PaymentTransactionStatus.A,
+                "Failed"   => PaymentTransactionStatus.R,
+                "Finished" => PaymentTransactionStatus.D,
                 _          => throw new ArgumentException($"cant parse status {text}")
             };
         }

@@ -1,6 +1,6 @@
-﻿namespace CCPP.Core.Queries
+﻿namespace CCPP.Core.Domain
 {
-    public enum PaymentTransactionStatusDto
+    public enum PaymentTransactionStatus
     {
         /// <summary>
         /// Approved
