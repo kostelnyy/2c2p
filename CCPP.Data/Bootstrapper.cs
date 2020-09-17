@@ -1,4 +1,6 @@
-﻿using CCPP.Core.Repository;
+﻿using CCPP.Core.Queries;
+using CCPP.Core.Repository;
+using CCPP.Data.Queries;
 using CCPP.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +14,8 @@ namespace CCPP.Data
         {
             services.AddDbContext<CcppDbContext>(o => o.UseSqlServer(config.GetConnectionString("CcppDb")));
             services.AddScoped<IPaymentTranstactionsRepository, PaymentTranstactionsRepository>();
+
+            services.AddScoped<IPaymentTranstactionQueries, PaymentTransactionQueries>();
             return services;
         }
     }

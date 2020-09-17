@@ -16,30 +16,20 @@ namespace CCPP.Data
         {
             modelBuilder.HasDefaultSchema("transactions");
 
-            modelBuilder.Entity<PaymentTranstaction>()
-                .HasKey(x => x.Id);
-
-            modelBuilder.Entity<PaymentTranstaction>()
-                .Property(x => x.Id)
-                .HasMaxLength(50);
-
-            modelBuilder.Entity<PaymentTranstaction>()
-                .Property(x => x.Currency)
-                .IsRequired()
-                .HasMaxLength(3);
-
-            modelBuilder.Entity<PaymentTranstaction>()
-                .Property(x => x.Status)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<PaymentTranstaction>()
-                .HasIndex(x => x.Currency);
-
-            modelBuilder.Entity<PaymentTranstaction>()
-                .HasIndex(x => x.TransactionDate);
-
-            modelBuilder.Entity<PaymentTranstaction>()
-                .HasIndex(x => x.Status);
+            modelBuilder.Entity<PaymentTranstaction>(b =>
+            {
+                b.HasKey(x => x.Id);
+                b.Property(x => x.Id)
+                    .HasMaxLength(50);
+                b.Property(x => x.Currency)
+                    .IsRequired()
+                    .HasMaxLength(3);
+                b.Property(x => x.Status)
+                    .HasConversion<string>();
+                b.HasIndex(x => x.Currency);
+                b.HasIndex(x => x.TransactionDate);
+                b.HasIndex(x => x.Status);
+            });
         }
     }
 
