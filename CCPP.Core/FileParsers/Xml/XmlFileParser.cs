@@ -9,7 +9,7 @@ namespace CCPP.Core.FileParsers.Xml
 {
     public class XmlFileParser : FileParser
     {
-        public override string Extension => "xml";
+        public override string Extension => ".xml";
 
         public override IEnumerable<PaymentTransaction> ParseContent(Stream content)
         {

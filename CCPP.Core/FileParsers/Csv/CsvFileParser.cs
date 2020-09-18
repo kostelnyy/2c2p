@@ -9,7 +9,7 @@ namespace CCPP.Core.FileParsers.Csv
 {
     public class CsvFileParser : FileParser
     {
-        public override string Extension => "csv";
+        public override string Extension => ".csv";
 
         public override IEnumerable<PaymentTransaction> ParseContent(Stream content)
         {

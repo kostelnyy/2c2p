@@ -1,5 +1,6 @@
 ﻿using CCPP.Core.FileParsers;
 using CCPP.Core.Repository;
+using CCPP.WebApi.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -23,13 +24,14 @@ namespace CCPP.WebApi.Controllers
         }
 
         [HttpPost]
+        [MaxSizeFilter(1*1024*1024)]
         public async Task<IActionResult> Post(IFormFile upload)
         {
             var parserToUse = _fileParsers.FirstOrDefault(p => p.CanParseFile(upload.FileName));
             if (parserToUse is null)
             {
                 var validExtenstions = _fileParsers.Select(p => p.Extension);
-                return BadRequest($"File format not supported. Valid formats: {string.Join(", ", validExtenstions)}");
+                return ValidationProblem($"File format not supported. Valid formats: {string.Join(", ", validExtenstions)}");
             }
 
             var result = parserToUse.ParseContent(upload.OpenReadStream());

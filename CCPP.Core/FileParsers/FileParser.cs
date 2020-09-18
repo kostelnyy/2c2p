@@ -1,8 +1,6 @@
 ﻿using CCPP.Core.Domain;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace CCPP.Core.FileParsers
 {
@@ -11,7 +9,7 @@ namespace CCPP.Core.FileParsers
         public abstract string Extension { get; }
         public bool CanParseFile(string fileName)
         {
-            var fileExtenstion = fileName.Split('.').Last();
+            var fileExtenstion = Path.GetExtension(fileName);
             return Extension.Equals(fileExtenstion);
         }
 

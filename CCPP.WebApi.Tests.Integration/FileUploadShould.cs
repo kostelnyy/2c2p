@@ -116,7 +116,25 @@ namespace CCPP.WebApi.Tests.Integration
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var body = await response.Content.ReadAsStringAsync();
-            body.Should().Be("File format not supported. Valid formats: xml, csv");
+            body.Should().Contain("File format not supported. Valid formats: .xml, .csv");
+        }
+
+        [Fact]
+        public async Task ReturnBadRequestForFilesBigger1MB()
+        {
+            var fileContent = CreateFileContent("This is a dummy file", "test.csv");
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(_client.BaseAddress + "uploads"),
+                Content = fileContent
+            };
+            request.Content.Headers.Add("content-length", (2 * 1024 * 1024).ToString());
+            var response = await _client.SendAsync(request);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var body = await response.Content.ReadAsStringAsync();
+            body.Should().Contain("Request body size should not exceed 1048576 bytes.");
         }
 
         private HttpContent CreateFileContent(string content, string fileName)
