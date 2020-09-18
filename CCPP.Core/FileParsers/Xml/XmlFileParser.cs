@@ -23,7 +23,7 @@ namespace CCPP.Core.FileParsers.Xml
                     TransactionDate = DateTime.Parse(t.Element("TransactionDate").Value),
                     Status = MapStatus(t.Element("Status").Value)
                 }).ToList();
-            return (result, null);
+            return (result, new List<string>());
 
             PaymentTransactionStatus MapStatus(string input) => input switch
             {

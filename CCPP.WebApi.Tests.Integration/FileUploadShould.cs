@@ -25,7 +25,8 @@ namespace CCPP.WebApi.Tests.Integration
         public FileUploadShould(CustomWebApplicationFactory<Startup> factory)
         {
             _repoMock = Substitute.For<IPaymentTranstactionsRepository>();
-            _client = factory.WithWebHostBuilder(b => {
+            _client = factory.WithWebHostBuilder(b =>
+            {
                 b.ConfigureTestServices(services =>
                 {
                     services.AddSingleton(_repoMock);
@@ -41,22 +42,39 @@ namespace CCPP.WebApi.Tests.Integration
 ""Invoice0000002"",""300.00"",""USD"",""21/02/2019 02:04:59"",""Failed""
 ""Invoice0000003"",""40.00"",""EUR"",""01/02/2020 02:04:59"",""Finished""
 ";
+            IEnumerable<PaymentTransaction> transaction = default;
+            await _repoMock.AddAsync(Arg.Do<IEnumerable<PaymentTransaction>>(q => transaction = q));
 
             var fileContent = CreateFileContent(content, "test.csv");
             var response = await _client.PostAsync("/uploads", fileContent);
 
             response.IsSuccessStatusCode.Should().BeTrue();
             await _repoMock.Received().SaveChangesAsync();
-            await _repoMock
-                .Received()
-                .AddAsync(Arg.Is<IEnumerable<PaymentTransaction>>(list => 
-                    list.First().Id == "Invoice0000001" &&
-                    list.First().Amount == 1000 &&
-                    list.First().Currency == "USD" &&
-                    list.First().TransactionDate == new DateTime(2019, 2, 20, 12, 33, 16) &&
-                    list.First().Status == PaymentTransactionStatus.A &&
-                    list.Last().Status == PaymentTransactionStatus.D
-                ));
+
+            transaction.Should().BeEquivalentTo(new PaymentTransaction
+            {
+                Id = "Invoice0000001",
+                Amount = 1000m,
+                Currency = "USD",
+                TransactionDate = new DateTime(2019, 2, 20, 12, 33, 16),
+                Status = PaymentTransactionStatus.A
+            },
+            new PaymentTransaction
+            {
+                Id = "Invoice0000002",
+                Amount = 300m,
+                Currency = "USD",
+                TransactionDate = new DateTime(2019, 2, 21, 2, 4, 59),
+                Status = PaymentTransactionStatus.R
+            },
+            new PaymentTransaction
+            {
+                Id = "Invoice0000003",
+                Amount = 40m,
+                Currency = "EUR",
+                TransactionDate = new DateTime(2020, 2, 1, 2, 4, 59),
+                Status = PaymentTransactionStatus.D
+            });
         }
 
         [Fact]
@@ -102,25 +120,31 @@ namespace CCPP.WebApi.Tests.Integration
 	</Transaction>
 </Transactions>	 
 ";
+            IEnumerable<PaymentTransaction> transaction = default;
+            await _repoMock.AddAsync(Arg.Do<IEnumerable<PaymentTransaction>>(q => transaction = q));
+
             var fileContent = CreateFileContent(content, "test.xml");
             var response = await _client.PostAsync("/uploads", fileContent);
 
             response.IsSuccessStatusCode.Should().BeTrue();
             await _repoMock.Received().SaveChangesAsync();
-            await _repoMock
-                .Received()
-                .AddAsync(Arg.Is<IEnumerable<PaymentTransaction>>(list =>
-                    list.First().Id == "Inv00001" &&
-                    list.First().Amount == 200 &&
-                    list.First().Currency == "USD" &&
-                    list.First().TransactionDate == new DateTime(2019, 1, 23, 13, 45, 10) &&
-                    list.First().Status == PaymentTransactionStatus.D &&
-                    list.Last().Id == "Inv00002" &&
-                    list.Last().Amount == 10000 &&
-                    list.Last().Currency == "EUR" &&
-                    list.Last().TransactionDate == new DateTime(2019, 1, 24, 16, 09, 15) &&
-                    list.Last().Status == PaymentTransactionStatus.R
-                ));
+
+            transaction.Should().BeEquivalentTo(new PaymentTransaction
+            {
+                Id = "Inv00001",
+                Amount = 200m,
+                Currency = "USD",
+                TransactionDate = new DateTime(2019, 1, 23, 13, 45, 10),
+                Status = PaymentTransactionStatus.D
+            },
+            new PaymentTransaction
+            {
+                Id = "Inv00002",
+                Amount = 10000m,
+                Currency = "EUR",
+                TransactionDate = new DateTime(2019, 1, 24, 16, 9, 15),
+                Status = PaymentTransactionStatus.R
+            });
         }
 
         [Theory]
