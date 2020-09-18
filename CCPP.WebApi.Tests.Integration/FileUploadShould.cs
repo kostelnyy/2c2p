@@ -8,7 +8,6 @@ using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -78,7 +77,7 @@ namespace CCPP.WebApi.Tests.Integration
         }
 
         [Fact]
-        public async Task ReturnBadRequestWithValidationDetailsIfSomeFieldIsEmpty()
+        public async Task ReturnBadRequestWithValidationDetailsIfSomeCsvFieldIsEmpty()
         {
             var content =
 @"""Invoice0000001"","""",""USD"",""20/02/2019 12:33:16"",""Approved""
@@ -145,6 +144,43 @@ namespace CCPP.WebApi.Tests.Integration
                 TransactionDate = new DateTime(2019, 1, 24, 16, 9, 15),
                 Status = PaymentTransactionStatus.R
             });
+        }
+
+        [Fact]
+        public async Task ReturnBadRequestWithValidationDetailsIfSomeXmlFieldIsEmpty()
+        {
+            var content =
+@"
+<Transactions>
+	<Transaction id="""">
+		<TransactionDate>2019-01-23T13:45:10</TransactionDate>
+		<PaymentDetails>
+			<Amount>200.00</Amount>
+			<CurrencyCode>USD</CurrencyCode>
+		</PaymentDetails>
+		<Status>Done</Status>
+	</Transaction>
+	<Transaction id=""Inv00002"">
+		<TransactionDate>2019-01-24T16:09:15</TransactionDate>
+		<PaymentDetails>
+			<Amount></Amount>
+			<CurrencyCode>EUR</CurrencyCode>
+		</PaymentDetails>
+		<Status>Rejected</Status>
+	</Transaction>
+</Transactions>	 
+";
+            IEnumerable<PaymentTransaction> transaction = default;
+            await _repoMock.AddAsync(Arg.Do<IEnumerable<PaymentTransaction>>(q => transaction = q));
+
+            var fileContent = CreateFileContent(content, "test.xml");
+            var response = await _client.PostAsync("/uploads", fileContent);
+
+            response.IsSuccessStatusCode.Should().BeFalse();
+            await _repoMock.DidNotReceiveWithAnyArgs().SaveChangesAsync();
+            var result = await response.Content.ReadAsStringAsync();
+            result.Should().Contain("<Transaction id=\\\"Inv00002\\\">\\r\\n  <TransactionDate>2019-01-24T16:09:15</TransactionDate>\\r\\n  <PaymentDetails>\\r\\n    <Amount></Amount>\\r\\n    <CurrencyCode>EUR</CurrencyCode>\\r\\n  </PaymentDetails>\\r\\n  <Status>Rejected</Status>\\r\\n</Transaction>");
+            result.Should().Contain("<Transaction id=\\\"\\\">\\r\\n  <TransactionDate>2019-01-23T13:45:10</TransactionDate>\\r\\n  <PaymentDetails>\\r\\n    <Amount>200.00</Amount>\\r\\n    <CurrencyCode>USD</CurrencyCode>\\r\\n  </PaymentDetails>\\r\\n  <Status>Done</Status>\\r\\n</Transaction>");
         }
 
         [Theory]

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml.Linq;
 
 namespace CCPP.Core.FileParsers.Xml
@@ -13,19 +12,40 @@ namespace CCPP.Core.FileParsers.Xml
 
         public override (IEnumerable<PaymentTransaction> Result, IEnumerable<string> Errors) ParseContent(Stream content)
         {
-            var result = XElement.Load(content)
-                .Descendants("Transaction")
-                .Select(t => new PaymentTransaction
+            var transtactions = XElement.Load(content)
+                .Descendants("Transaction");
+
+            var errors = new List<string>();
+            var result = new List<PaymentTransaction>();
+
+            foreach(var transaction in transtactions)
+            {
+                try
+                {
+                    result.Add(ParseFromXElement(transaction));
+                }
+                catch
+                {
+                    errors.Add(transaction.ToString());
+                }
+            }
+
+            return (result, errors);
+
+            static PaymentTransaction ParseFromXElement(XElement t)
+            {
+                var result = new PaymentTransaction
                 {
                     Id = t.Attribute("id").Value,
                     Amount = decimal.Parse(t.Element("PaymentDetails").Element("Amount").Value),
                     Currency = t.Element("PaymentDetails").Element("CurrencyCode").Value,
                     TransactionDate = DateTime.Parse(t.Element("TransactionDate").Value),
                     Status = MapStatus(t.Element("Status").Value)
-                }).ToList();
-            return (result, new List<string>());
+                };
+                return result;
+            }
 
-            PaymentTransactionStatus MapStatus(string input) => input switch
+            static PaymentTransactionStatus MapStatus(string input) => input switch
             {
                 "Approved" => PaymentTransactionStatus.A,
                 "Done" => PaymentTransactionStatus.D,
