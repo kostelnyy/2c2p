@@ -11,7 +11,7 @@ namespace CCPP.Core.FileParsers.Xml
     {
         public override string Extension => ".xml";
 
-        public override IEnumerable<PaymentTransaction> ParseContent(Stream content)
+        public override (IEnumerable<PaymentTransaction> Result, IEnumerable<string> Errors) ParseContent(Stream content)
         {
             var result = XElement.Load(content)
                 .Descendants("Transaction")
@@ -23,7 +23,7 @@ namespace CCPP.Core.FileParsers.Xml
                     TransactionDate = DateTime.Parse(t.Element("TransactionDate").Value),
                     Status = MapStatus(t.Element("Status").Value)
                 }).ToList();
-            return result;
+            return (result, null);
 
             PaymentTransactionStatus MapStatus(string input) => input switch
             {

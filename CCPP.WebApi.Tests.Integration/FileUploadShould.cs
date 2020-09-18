@@ -60,6 +60,25 @@ namespace CCPP.WebApi.Tests.Integration
         }
 
         [Fact]
+        public async Task ReturnBadRequestWithValidationDetailsIfSomeFieldIsEmpty()
+        {
+            var content =
+@"""Invoice0000001"","""",""USD"",""20/02/2019 12:33:16"",""Approved""
+""Invoice0000002"",""300.00"",""USD"",""21/02/2019 02:04:59"",""Failed""
+""Invoice0000003"",""500"",""USD"","""",""Approved""
+";
+
+            var fileContent = CreateFileContent(content, "test.csv");
+            var response = await _client.PostAsync("/uploads", fileContent);
+
+            response.IsSuccessStatusCode.Should().BeFalse();
+            await _repoMock.DidNotReceiveWithAnyArgs().SaveChangesAsync();
+            var result = await response.Content.ReadAsStringAsync();
+            result.Should().Contain("\\\"Invoice0000001\\\",\\\"\\\",\\\"USD\\\",\\\"20/02/2019 12:33:16\\\",\\\"Approved\\\"");
+            result.Should().Contain("\\\"Invoice0000003\\\",\\\"500\\\",\\\"USD\\\",\\\"\\\",\\\"Approved\\\"");
+        }
+
+        [Fact]
         public async Task SuccesfullyWriteValidXmlInput()
         {
             var content =

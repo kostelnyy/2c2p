@@ -34,9 +34,18 @@ namespace CCPP.WebApi.Controllers
                 return ValidationProblem($"File format not supported. Valid formats: {string.Join(", ", validExtenstions)}");
             }
 
-            var result = parserToUse.ParseContent(upload.OpenReadStream());
+            var (Result, Errors) = parserToUse.ParseContent(upload.OpenReadStream());
 
-            await _repository.AddAsync(result);
+            if (Errors.Any())
+            {
+                foreach(var e in Errors)
+                {
+                    ModelState.AddModelError("ParsingError", e);
+                }
+                return ValidationProblem(ModelState);
+            }
+
+            await _repository.AddAsync(Result);
             await _repository.SaveChangesAsync();
 
             return Ok();
